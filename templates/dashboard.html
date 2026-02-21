@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Timetable Dashboard</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            min-height: 100vh;
+            background: radial-gradient(circle at top, #1f2a44, #0b1220 70%);
+            color: #e5e7eb;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        h1 { color: #f9fafb; }
+        .subtitle { color: #9ca3af; }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            margin-bottom: 20px;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .stat-teacher { color: #60a5fa; }
+        .stat-subject { color: #c084fc; }
+        .stat-room { color: #34d399; }
+
+        .stat-title-teacher { color: #60a5fa; }
+        .stat-title-subject { color: #c084fc; }
+        .stat-title-room { color: #34d399; }
+
+        .stat-hint {
+            color: #9ca3af;
+            font-size: 13px;
+            margin-top: 6px;
+            display: block;
+        }
+
+        .glass-card:hover .stat-hint {
+            color: #e5e7eb;
+        }
+
+        .btn-generate {
+            background: linear-gradient(90deg, #059669, #10b981);
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 12px;
+            border-radius: 10px;
+        }
+
+        .btn-generate:hover {
+            background: linear-gradient(90deg, #047857, #059669);
+        }
+
+        .btn-admin {
+            border: 1px solid #374151;
+            color: #e5e7eb;
+            border-radius: 10px;
+            padding: 10px 20px;
+            text-decoration: none;
+        }
+
+        .btn-admin:hover {
+            background-color: #111827;
+            color: #10b981;
+        }
+
+        .form-select {
+            background-color: #111827;
+            color: #e5e7eb;
+            border: 1px solid #374151;
+        }
+
+        .form-select:focus {
+            border-color: #10b981;
+            box-shadow: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container py-5">
+
+    <!-- HEADER -->
+    <div class="text-center mb-5">
+        <h1>Smart Timetable Generator</h1>
+        <p class="subtitle">
+            Admin Dashboard – Generate & Download Timetable
+        </p>
+    </div>
+
+    <!-- STATS -->
+    <div class="row text-center mb-4">
+
+        <div class="col-md-4">
+            <a href="/admin/scheduler/teacher/" class="text-decoration-none">
+                <div class="glass-card">
+                    <div class="stat-title-teacher">Total Teachers</div>
+                    <div class="stat-number stat-teacher">{{ teacher_count }}</div>
+                    <span class="stat-hint">Click to view details</span>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-4">
+            <a href="/admin/scheduler/subject/" class="text-decoration-none">
+                <div class="glass-card">
+                    <div class="stat-title-subject">Total Subjects</div>
+                    <div class="stat-number stat-subject">{{ subject_count }}</div>
+                    <span class="stat-hint">Click to view details</span>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-4">
+            <a href="/admin/scheduler/room/" class="text-decoration-none">
+                <div class="glass-card">
+                    <div class="stat-title-room">Total Rooms</div>
+                    <div class="stat-number stat-room">{{ room_count }}</div>
+                    <span class="stat-hint">Click to view details</span>
+                </div>
+            </a>
+        </div>
+
+    </div>
+
+    <!-- GENERATE TIMETABLE (ADMIN ONLY) -->
+    {% if user.is_authenticated %}
+    <div class="glass-card">
+        <h4 class="mb-3">Generate Timetable</h4>
+
+        <form method="get" action="{% url 'generate' %}">
+            <div class="row g-3">
+                <div class="col-md-8">
+                    <select class="form-select" name="class_id" required>
+                        <option value="">Select Class</option>
+                        {% for c in classes %}
+                            <option value="{{ c.id }}">{{ c.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-generate w-100">
+
+                        Generate Timetable
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+
+    <!-- QUICK LINKS -->
+    <div class="text-center mt-4">
+
+        {% if user.is_authenticated %}
+        <a href="/admin/" class="btn-admin">
+            Manage Data (Admin Panel)
+        </a>
+        &nbsp;&nbsp;
+        {% endif %}
+
+        <a href="/timetable/" class="btn-admin">
+            View Student Timetable
+        </a>
+    </div>
+
+</div>
+
+</body>
+</html>

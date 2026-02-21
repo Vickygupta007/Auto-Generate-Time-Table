@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Class Timetable</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            min-height: 100vh;
+            background: radial-gradient(circle at top, #1f2a44, #0b1220 70%);
+            color: #e5e7eb;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        h2 {
+            color: #f9fafb;
+        }
+
+        .day-card {
+            background: rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        }
+
+        .day-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #60a5fa;
+            margin-bottom: 15px;
+        }
+
+        .period-row {
+            background: rgba(17,24,39,0.9);
+            border-radius: 12px;
+            padding: 14px 18px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .time {
+            color: #93c5fd;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .subject {
+            color: #c084fc;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .teacher {
+            color: #9ca3af;
+            font-size: 14px;
+        }
+
+        .room {
+            color: #34d399;
+            font-weight: 600;
+        }
+
+        .break-row {
+            background: linear-gradient(90deg, #92400e, #f59e0b);
+            color: white;
+            font-weight: 700;
+            text-align: center;
+            border-radius: 12px;
+            padding: 12px;
+            margin: 18px 0;
+        }
+
+        .holiday-row {
+            background: linear-gradient(90deg, #7f1d1d, #dc2626);
+            color: white;
+            font-weight: 700;
+            text-align: center;
+            border-radius: 12px;
+            padding: 22px;
+            margin: 20px 0;
+        }
+
+        .form-select {
+            background-color: #111827;
+            color: #e5e7eb;
+            border: 1px solid #374151;
+        }
+
+        .form-select:focus {
+            border-color: #10b981;
+            box-shadow: none;
+        }
+
+        .btn-back {
+            border: 1px solid #374151;
+            color: #e5e7eb;
+            border-radius: 10px;
+            padding: 8px 16px;
+            text-decoration: none;
+        }
+
+        .btn-back:hover {
+            background-color: #111827;
+            color: #10b981;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container py-5">
+
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Class Timetable</h2>
+        <a href="/" class="btn-back">⬅ Back to Dashboard</a>
+    </div>
+
+    <!-- CLASS SELECT -->
+    <form method="get" class="row justify-content-center mb-5">
+        <div class="col-md-4">
+            <select name="class_id" class="form-select" onchange="this.form.submit()">
+                <option value="">Select Class</option>
+                {% for c in classes %}
+                    <option value="{{ c.id }}"
+                        {% if selected_class and selected_class.id == c.id %}selected{% endif %}>
+                        {{ c.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+    </form>
+
+    {% if rows|length > 0 %}
+
+        {% regroup rows by day as day_list %}
+
+        {% for day in day_list %}
+<div class="day-card">
+
+    <div class="day-title">{{ day.grouper }}</div>
+
+    {% with is_holiday=False %}
+        {% for h in holidays %}
+            {% if h.day == day.grouper %}
+                {% with True as is_holiday %}
+                    <div class="holiday-row">
+                        HOLIDAY<br>
+                        <small>{{ h.reason }}</small>
+                    </div>
+                {% endwith %}
+            {% endif %}
+        {% endfor %}
+
+        {% if not is_holiday %}
+
+            {% for row in day.list|dictsort:"period" %}
+
+                {% if row.period == 3 %}
+                    <div class="break-row">
+                        BREAK (02:00 PM – 03:00 PM)
+                    </div>
+                {% endif %}
+
+                <div class="period-row">
+                    <div>
+                        <div class="time">
+                            {% if row.period == 1 %}
+                                10:00 AM – 12:00 PM
+                            {% elif row.period == 2 %}
+                                12:00 PM – 02:00 PM
+                            {% elif row.period == 3 %}
+                                03:00 PM – 05:00 PM
+                            {% endif %}
+                        </div>
+
+                        <div class="subject">{{ row.subject }}</div>
+                        <div class="teacher">{{ row.teacher }}</div>
+                    </div>
+
+                    <div class="room">{{ row.room }}</div>
+                </div>
+
+            {% endfor %}
+
+        {% endif %}
+    {% endwith %}
+
+</div>
+{% endfor %}
+
+
+    {% else %}
+        <div class="alert alert-warning text-center">
+            Please select a class to view timetable
+        </div>
+    {% endif %}
+
+</div>
+
+</body>
+</html>
